@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <script type="text/javascript" src="zepto.min.js"></script>
+  <script type="text/javascript" src="canvasjs.min.js"></script>
+  <script type="text/javascript">
+    Zepto(function ($) {
+
+      var upstreamData = [];
+      var downstreamData = [];
+      var chart = new CanvasJS.Chart("chartContainer", {
+        zoomEnabled: false,
+        animationEnabled: true,
+        title:{
+          text: "Line Speed"
+        },
+        axisY2:{
+          valueFormatString:"0 kbps",
+          maximum: 6000,
+          interval: 500,
+          interlacedColor: "#F5F5F5",
+          gridColor: "#D7D7D7",
+          tickColor: "#D7D7D7"
+        },
+        theme: "theme2",
+        legend:{
+          verticalAlign: "bottom",
+          horizontalAlign: "center",
+          fontSize: 15,
+          fontFamily: "Lucida Sans Unicode"
+        },
+        data: [
+          {
+            type: "line",
+            lineThickness:3,
+            axisYType:"secondary",
+            showInLegend: true,
+            name: "Upstream",
+            dataPoints: upstreamData
+          },
+          {
+            type: "line",
+            lineThickness:3,
+            showInLegend: true,
+            name: "Downstream",
+            axisYType:"secondary",
+            dataPoints: downstreamData
+          }
+        ]
+      });
+
+      var updateChart = function() {
+        $.get('/data.csv', function(data) {
+          $.each(data.split('\n'), function(_, line) {
+            var parts = line.split(',');
+            if (parts.length === 3) {
+              upstreamData.push({
+                x: new Date(parts[0]),
+                y: parseInt(parts[1]),
+              });
+              downstreamData.push({
+                x: new Date(parts[0]),
+                y: parseInt(parts[2]),
+              });
+            }
+          });
+          chart.render();
+        });
+      };
+
+      updateChart();
+      setInterval(function() { updateChart(); }, 60000);
+
+    });
+  </script>
+</head>
+
+<body>
+  <div id="chartContainer" style="height: 500px; width: 100%;"></div>
+</body>
+</html>
