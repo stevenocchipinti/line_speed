@@ -52,6 +52,8 @@
 
       var updateChart = function() {
         $.get('/data.csv', function(data) {
+          upstreamData.splice(0);
+          downstreamData.splice(0);
           $.each(data.split('\n'), function(_, line) {
             var parts = line.split(',');
             if (parts.length === 3) {
